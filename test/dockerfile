@@ -1,20 +1,35 @@
-FROM nvidia/cuda:11.3.1-cudnn8-devel-ubuntu18.04
+FROM pytorch/pytorch:1.11.0-cuda11.3-cudnn8-runtime
 
-# Python 3.6とpipのインストール
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        python3.6 \
-        python3.6-dev \
-        python3-pip && \
-    rm -rf /var/lib/apt/lists/*
+# 必要なシステムパッケージのインストール
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    zlib1g-dev \
+    libsdl1.2-dev \
+    ffmpeg \
+    cmake \
+    git \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
-# pythonとpipコマンドをpython3.6とpip3にリンク
-RUN ln -s /usr/bin/python3.6 /usr/bin/python && \
-    ln -s /usr/bin/pip3 /usr/bin/pip
+# JupyterLabのインストール
+RUN pip install --no-cache-dir jupyterlab ipywidgets
 
-# pipのアップグレード
-RUN pip install --upgrade pip
+# 必要なPythonパッケージのインストール
+RUN pip install --no-cache-dir \
+    gym==0.21.0 \
+    gym_super_mario_bros==7.3.0 \
+    nes_py==8.2.1 \
+    matplotlib \
+    Pillow \
+    numpy \
+    opencv-python \
+    ipython
 
-# PyTorchのインストール（CUDA 11.3対応）
-RUN pip install torch==1.10.0+cu113 torchvision==0.11.1+cu113 torchaudio==0.10.0+cu113 \
-    -f https://download.pytorch.org/whl/cu113/torch_stable.html
+# ポート8888を公開（JupyterLab用）
+EXPOSE 8888
+
+# 作業ディレクトリの設定
+WORKDIR /workspace
+
+# コンテナ起動時にJupyterLabを実行
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--allow-root", "--no-browser"]

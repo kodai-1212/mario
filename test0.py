@@ -224,7 +224,7 @@ for stage in stage_names:
     env = ResizeObservation(env, shape=84)
     env = FrameStack(env, num_stack=4)
 
-    episodes = 10  # 各ステージでのエピソード数を指定
+    episodes = 1  # 各ステージでのエピソード数を指定
     stage_cleared = False
     for e in range(episodes):
         state = env.reset()
